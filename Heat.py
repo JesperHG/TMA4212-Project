@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sparse             # Sparse matrices
 from scipy.sparse.linalg import spsolve   # Linear solver for sparse matrices
 
-def laplacian(M):
+def laplacian(M,h,k):
     '''
     Construct the Discrete Laplacian
     '''
@@ -10,7 +10,7 @@ def laplacian(M):
     Mi2 = Mi**2    # Number of inner points in total
 
     # Construct a sparse A-matrix
-    B = sparse.diags([-1,4,-1],[-1,0,1],shape=(Mi, Mi), format="lil")
+    B = sparse.diags([-1,4+h**2/k,-1],[-1,0,1],shape=(Mi, Mi), format="lil")
     A = sparse.kron(sparse.eye(Mi), B)
     C = sparse.diags([-1,-1],[-Mi,Mi],shape=(Mi2, Mi2), format="lil")
     A = (A+C).tocsr() # Konverter til csr-format (necessary for spsolve) 
@@ -46,7 +46,7 @@ class Heat(object):
         Xi, Yi = np.meshgrid(xi, yi)
         Mi = M-1          # Number of inner points in each direction
 
-        A = laplacian(M)
+        A = laplacian(M,h,k)
         
         # Construct the right hand side directly on the grid 
         # To be consistent with the natural choice of axes, U[j,i] \approx u(x_i,y_j). 
@@ -63,13 +63,13 @@ class Heat(object):
         # Solve the linear system (sparse solver)
         U = np.zeros((M+1, M+1, N))
         U[1:-1,1:-1,0] = np.ones((Mi,Mi)) * -1
-        U[0,0:Mi,0]  += self.g(xi,0.)       # lower boundary
+        U[0,0:Mi]  += self.g(xi,0.)       # lower boundary
         U[Mi-1,0:Mi] += self.g(xi,1.)       # upper boundary
         U[0:Mi,0]    += self.g(0.,yi)       # left  boundary
         U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary
 
         for n in range(N-1):
             # Forward in time, 5-point in space
-            U[1:-1,1:-1,n+1] = U[1:-1, 1:-1, n] + 2*k/h**2 * (A@U[1:-1,1:-1,n].flatten()).reshape(Mi, Mi)
+            U[1:-1,1:-1,n+1] = spsolve(A, h**2/k*U[1:-1,1:-1,n].flatten()).reshape(Mi,Mi)
 
         return x, y, t, U

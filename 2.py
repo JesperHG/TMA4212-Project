@@ -42,7 +42,7 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
         ax.set_title(f'{text} (t = {t[frame]:.4f})')
         return contour,
     
-    anim = FuncAnimation(fig, animate, frames=len(t), interval=50, blit=False, repeat=True)
+    anim = FuncAnimation(fig, animate, frames=len(t), interval=2000, blit=False, repeat=True)
     
     return fig, ax, anim
 
@@ -51,9 +51,7 @@ T0 = 300 # [K] Initial temperature
 Tm = 443 # [K] Mold temperature
 
 f = lambda x, y: 0
-def g(x,y):
-    if 
-    -np.exp(-h*L/k)
+g = lambda x,y: np.exp(-h*L/k)
 
 pde = Heat(f, g)
 x, y, t, U = pde.solve(4)
