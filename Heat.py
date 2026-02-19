@@ -69,7 +69,7 @@ class Heat(object):
         U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary
 
         for n in range(N-1):
-            U[1:-1,1:-1,n+1] = U[1:-1, 1:-1, n] + 2*k/h**2*spsolve(A,b).reshape(M-1,M-1)
+            # Forward in time, 5-point in space
+            U[1:-1,1:-1,n+1] = U[1:-1, 1:-1, n] + 2*k/h**2 * (A@U[1:-1,1:-1,n].flatten()).reshape(Mi, Mi)
 
-        X, Y = np.meshgrid(x,y)
-        return X, Y, U
+        return x, y, t, U
