@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sparse             # Sparse matrices
 from scipy.sparse.linalg import spsolve   # Linear solver for sparse matrices
 
-def laplacian(M,h,k):
+def laplacian(M, h, k):
     '''
     Construct the Discrete Laplacian
     '''
@@ -45,7 +45,7 @@ class Heat(object):
         yi = y[1:-1] 
         Mi = M-1          # Number of inner points in each direction
 
-        A = laplacian(M, k, h)
+        A = laplacian(M, h, k)
 
         # Solve the linear system (sparse solver)
         U = np.zeros((M+1, M+1, N))
