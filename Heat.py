@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sparse             # Sparse matrices
 from scipy.sparse.linalg import spsolve   # Linear solver for sparse matrices
 
-def laplacian(M, k, h):
+def laplacian(M,h,k):
     '''
     Construct the Discrete Laplacian
     '''
@@ -26,7 +26,7 @@ class Heat(object):
         self.f = f   # Right hand side
         self.g = g   # Boundary values
 
-    def solve(self, M=10, N=10):
+    def solve(self, M=10, N=50):
         '''
         Solve Heat problem with the 5-point formula
         M: Number of grid intervals in each spacial direction
