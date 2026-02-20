@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from MODEL_PARAMS import k, h, rho, c_p, H_r, A, E, R, m, n, T_s
+from MODEL_PARAMS import k, h, rho, c_p, H_r, A, E, R, m, n, T_s, L, T0, Tm
 from Heat import Heat
+from Vulcanization import Vulcanization
 
 def plot_solution(x, y, t, U, text='The solution', fp=1):
     """
@@ -43,14 +44,12 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
     
     return fig, ax, anim
 
-L = 0.02 # [m] Domain size
-T0 = 300 # [K] Initial temperature
-Tm = 443 # [K] Mold temperature
+
 
 f = lambda x, y: 0
 g = lambda x, y: -np.exp(-h*L/k)
 
-pde = Heat(f, g)
+pde = Vulcanization(f, g)
 x, y, t, U = pde.solve(4)
 
 # Create animated plot
