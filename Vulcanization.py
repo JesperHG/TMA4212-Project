@@ -31,10 +31,10 @@ class Vulcanization(object):
         limit = (T_s - Tm)/(Tm - T0) 
         da = np.zeros_like(alpha)
         mask = u > limit
-        da[mask] += A*np.exp(-E/(R*(Tm-T0)*u+Tm))*alpha**m*(1-alpha)**n
+        da[mask] += A*np.exp(-E/(R*(Tm-T0)*u[mask]+Tm))*alpha[mask]**m*(1-alpha[mask])**n
         return da
 
-    def solve(self, M=10, N=50):
+    def solve(self, M=75, N=150):
         '''
         Solve Heat problem with the 5-point formula
         M: Number of grid intervals in each spacial direction
@@ -67,13 +67,12 @@ class Vulcanization(object):
         for n in range(N-1):
             # Backward in time, 5-point in space
             b = h**2/k*U[1:-1,1:-1,n].flatten()
+            U[1:-1,1:-1,n+1] = spsolve(A, b).reshape(Mi,Mi) 
             sourceterm = self.sourceTerm(U[1:-1,1:-1,n+1], alpha[1:-1,1:-1,n])
 
+            b += h**2*c*sourceterm.flatten()
             U[1:-1,1:-1,n+1] = spsolve(A, b).reshape(Mi,Mi)
 
-            b += h**2*c*sourceterm
-            U[1:-1,1:-1,n+1] = spsolve(A, b).reshape(Mi,Mi)
-
-            alpha += k*sourceterm
+            alpha[1:-1,1:-1,n+1] += k*sourceterm 
             
         return x, y, t, U

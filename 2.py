@@ -49,8 +49,10 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
 f = lambda x, y: 0
 g = lambda x, y: -np.exp(-h*L/k)
 
-pde = Vulcanization(f, g)
-x, y, t, U = pde.solve(4)
+pde = Vulcanization(f, g) 
+pde2 = Heat(f,g)
+
+x, y, t, U = pde.solve() 
 
 # Create animated plot
 fig, ax, anim = plot_solution(x, y, t, U)
