@@ -16,3 +16,10 @@ R = 8.314  # gas constant [J/(mol K)]
 m = 1.2  # reaction exponent
 n = 1.8  # reaction exponent
 T_s = 393  # threshold temperature [K]
+
+# Task parameters
+L = 0.02 # [m] Domain size
+T0 = 300 # [K] Initial temperature
+Tm = 443 # [K] Mold temperature
+
+c = (rho*H_r*L**2)/k*(Tm-T0)
