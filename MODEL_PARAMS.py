@@ -22,4 +22,4 @@ L = 0.02 # [m] Domain size
 T0 = 300 # [K] Initial temperature
 Tm = 443 # [K] Mold temperature
 
-c = (rho*H_r*L**2)/k*(Tm-T0)
+c = H_r/(c_p*(Tm-T0))

@@ -40,7 +40,7 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
         ax.set_title(f'{text} (t = {t[frame]:.4f})')
         return contour,
     
-    anim = FuncAnimation(fig, animate, frames=len(t)-1, interval=10, blit=False, repeat=True)
+    anim = FuncAnimation(fig, animate, frames=len(t)-1, interval=100, blit=False, repeat=True)
     
     return fig, ax, anim
 
@@ -52,8 +52,15 @@ g = lambda x, y: -np.exp(-h*L/k)
 pde = Vulcanization(f, g) 
 pde2 = Heat(f,g)
 
-x, y, t, U = pde.solve() 
+x, y, t, U, alpha = pde.solve() 
 
 # Create animated plot
 fig, ax, anim = plot_solution(x, y, t, U)
+plt.show()
+
+fig, ax, anim = plot_solution(x, y, t, -alpha)
+plt.show()
+
+plt.figure()
+plt.plot(t[:-1], np.max(alpha,axis=(0,1)))
 plt.show()
