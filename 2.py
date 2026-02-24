@@ -51,11 +51,8 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
 
 f = lambda x, y: 0
 
-
-g = lambda x, y: -np.exp(-h*L/k)
-
-pde = Vulcanization(f, g) 
-pde2 = Heat(f,g)
+pde = Vulcanization(f) 
+pde2 = Heat(f)
 
 x, y, t, U = pde2.solve() 
 

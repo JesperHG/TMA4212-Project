@@ -7,16 +7,12 @@ def laplacian(M, D):
     '''
     Construct the Discrete Laplacian
     '''
-                       
-
+    Mo = M+1
     # Construct a sparse A-matrix
-    A = sparse.kron(sparse.eye(M), D)
-    C = sparse.diags([-1,-1],[-M,M],shape=(M**2, M**2), format="lil")
+    A = sparse.kron(sparse.eye(Mo), D)
+    C = sparse.diags([-1,-1],[-Mo,Mo],shape=(Mo**2, Mo**2), format="lil")
     A = (A+C).tocsr() # Konverter til csr-format (necessary for spsolve) 
     return A  
-
-
-
 
 class Heat(object):
     '''
@@ -24,9 +20,8 @@ class Heat(object):
 
     Class for the Heat problem u dot - Delta u = f on Omega, with u=g at the boundaries.
     '''
-    def __init__(self, f, g):
+    def __init__(self, f):
         self.f = f   # Right hand side
-        self.g = g   # Boundary values
 
     def solve(self, M=10, N=50):
         '''
@@ -41,7 +36,6 @@ class Heat(object):
         t = np.linspace(0, 1, N+1)
         h = 1/M
         k = 1/N
-        M = M + 1
 
         # Inner points
         xi = x[1:-1]       
@@ -52,7 +46,7 @@ class Heat(object):
         d_star = h**2/k +4*(1+k)
         d = h**2/k + 4 + 2*k  
 
-        D = sparse.diags([-1,d,-1],[-1,0,1],shape=(M, M), format="lil") 
+        D = sparse.diags([-1,d,-1],[-1,0,1],shape=(M+1, M+1), format="lil") 
         D[0,0] = D[-1,-1] = d_star 
         D[0,1] = D[-1,-2] = -2 
 
