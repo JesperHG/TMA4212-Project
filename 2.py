@@ -22,10 +22,13 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
     fig, ax = plt.subplots(figsize=(8, 6), num=fp)
     
     # Create meshgrid for x, y
-    X, Y = np.meshgrid(x, y, indexing='ij')
+    X, Y = np.meshgrid(x, y, indexing='ij') 
+
+    u_max = np.max(U)
+    u_min = np.min(U)
     
     # Create initial contourf plot
-    contour = ax.contourf(X, Y, U[:, :, 0], levels=20, cmap='coolwarm', vmin=-1, vmax=0)
+    contour = ax.contourf(X, Y, U[:, :, 0], levels=20, cmap='coolwarm', vmin=u_min, vmax=u_max)
     cbar = fig.colorbar(contour, ax=ax, label='U')
     
     ax.set_xlabel('x')
@@ -34,26 +37,29 @@ def plot_solution(x, y, t, U, text='The solution', fp=1):
     
     def animate(frame):
         ax.clear()
-        contour = ax.contourf(X, Y, U[:, :, frame], levels=20, cmap='coolwarm', vmin=-1, vmax=0)
+        contour = ax.contourf(X, Y, U[:, :, frame], levels=20, cmap='coolwarm', vmin=u_min, vmax=u_max)
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_title(f'{text} (t = {t[frame]:.4f})')
         return contour,
     
-    anim = FuncAnimation(fig, animate, frames=len(t)-1, interval=10, blit=False, repeat=True)
+    anim = FuncAnimation(fig, animate, frames=len(t)-1, interval=100, blit=False, repeat=True)
     
     return fig, ax, anim
 
 
 
 f = lambda x, y: 0
+
+
 g = lambda x, y: -np.exp(-h*L/k)
 
 pde = Vulcanization(f, g) 
 pde2 = Heat(f,g)
 
-x, y, t, U = pde.solve() 
+x, y, t, U = pde2.solve() 
 
 # Create animated plot
 fig, ax, anim = plot_solution(x, y, t, U)
-plt.show()
+plt.show() 
+

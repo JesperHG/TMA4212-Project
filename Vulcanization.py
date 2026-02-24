@@ -31,10 +31,10 @@ class Vulcanization(object):
         limit = (T_s - Tm)/(Tm - T0) 
         da = np.zeros_like(alpha)
         mask = u > limit
-        da[mask] += A*np.exp(-E/(R*(Tm-T0)*u[mask]+Tm))*alpha[mask]**m*(1-alpha[mask])**n
+        da[mask] = A*np.exp(-E/(R*((Tm-T0)*u[mask]+Tm)))*alpha[mask]**m*(1-alpha[mask])**n
         return da
 
-    def solve(self, M=75, N=150):
+    def solve(self, M=75, N=100):
         '''
         Solve Heat problem with the 5-point formula
         M: Number of grid intervals in each spacial direction
@@ -62,17 +62,19 @@ class Vulcanization(object):
         U[0,0:Mi]    += self.g(xi,0.)       # lower boundary
         U[Mi-1,0:Mi] += self.g(xi,1.)       # upper boundary
         U[0:Mi,0]    += self.g(0.,yi)       # left  boundary
-        U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary
+        U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary 
+
 
         for n in range(N-1):
-            # Backward in time, 5-point in space
-            b = h**2/k*U[1:-1,1:-1,n].flatten()
-            U[1:-1,1:-1,n+1] = spsolve(A, b).reshape(Mi,Mi) 
-            sourceterm = self.sourceTerm(U[1:-1,1:-1,n+1], alpha[1:-1,1:-1,n])
+            # Step 1: Pure heat equation (no source term), implicit in space
+            b = h**2/k * U[1:-1,1:-1,n].flatten()
+            U_star = spsolve(A, b).reshape(Mi, Mi)
 
-            b += h**2*c*sourceterm.flatten()
-            U[1:-1,1:-1,n+1] = spsolve(A, b).reshape(Mi,Mi)
+            # Step 2: Reaction step using updated temperature U_star
+            sourceterm = self.sourceTerm(U_star, alpha[1:-1,1:-1,n])
+            alpha[1:-1,1:-1,n+1] = np.clip(alpha[1:-1,1:-1,n] + k*sourceterm, 0, 1)
 
-            alpha[1:-1,1:-1,n+1] += k*sourceterm 
+            # Correct U for heat released by reaction
+            U[1:-1,1:-1,n+1] = U_star + k*c*sourceterm
             
-        return x, y, t, U
+        return x, y, t, U, alpha
