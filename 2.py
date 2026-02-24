@@ -8,10 +8,16 @@ from Vulcanization import Vulcanization
 from plotting import plotU
 
 pde = Heat()
+pde2 = Vulcanization(0,0)
 
-x, y, t, U = pde.solve() 
+x, y, t, U, alpha = pde2.solve() 
 
 # Create animated plot
 fig, ax, anim = plotU(x, y, t, U)
-plt.show() 
+plt.show()  
+
+fig, ax, anim = plotU(x, y, t, alpha)
+plt.show()  
+
+
 

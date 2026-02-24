@@ -1,21 +1,8 @@
 import numpy as np
 import scipy.sparse as sparse             # Sparse matrices
 from scipy.sparse.linalg import spsolve   # Linear solver for sparse matrices
-from MODEL_PARAMS import c, T0, Tm, T_s, E, R, A, m, n
-
-def laplacian(M, h, k):
-    '''
-    Construct the Discrete Laplacian
-    '''
-    Mi = M-1       # Number of inner points in each direction
-    Mi2 = Mi**2    # Number of inner points in total
-
-    # Construct a sparse A-matrix
-    B = sparse.diags([-1,4+h**2/k,-1],[-1,0,1],shape=(Mi, Mi), format="lil")
-    A = sparse.kron(sparse.eye(Mi), B)
-    C = sparse.diags([-1,-1],[-Mi,Mi],shape=(Mi2, Mi2), format="lil")
-    A = (A+C).tocsr() # Konverter til csr-format (necessary for spsolve) 
-    return A
+from MODEL_PARAMS import c, T0, Tm, T_s, E, R, A, m, n, k, h,L
+from Heat import laplacian
 
 class Vulcanization(object):
     '''
@@ -34,47 +21,59 @@ class Vulcanization(object):
         da[mask] = A*np.exp(-E/(R*((Tm-T0)*u[mask]+Tm)))*alpha[mask]**m*(1-alpha[mask])**n
         return da
 
-    def solve(self, M=75, N=100):
+    def solve(self, M=75, N=50):
         '''
         Solve Heat problem with the 5-point formula
         M: Number of grid intervals in each spacial direction
         N: Number of grid intervals in time
         '''
-        # Make the grid
+          # Make the grid
         x = np.linspace(0, 1, M+1)
         y = np.linspace(0, 1, M+1) 
-        t = np.linspace(0, 1, N+1)
-        h = 1/M
-        k = 1/N
+        t = np.linspace(0, 2, N+1)
+        dx = 1/M
+        dt = 1/N
+        Mo = M+1 # Number of total points in each direction
 
-        # Inner points
-        xi = x[1:-1]       
-        yi = y[1:-1] 
-        Mi = M-1          # Number of inner points in each direction
+        # --- Constructing the linear system A  ---
+        Gamma = k/(h*L)
+        d_star = dx**2/dt + 4*(1+Gamma*dx)
+        d = dx**2/dt + 4+2*Gamma*dx  
 
-        A = laplacian(M, h, k)
+        D = sparse.diags([-1,d,-1],[-1,0,1],shape=(Mo, Mo), format="lil") 
+        D[0,0] = D[-1,-1] = d_star 
+        D[0,1] = D[-1,-2] = -2 
 
-        # Solve the linear system (sparse solver)
-        alpha = np.ones((M+1, M+1, N)) * 0.1
+        D_inner = sparse.diags([-1,4 +dx**2/dt,-1],[-1,0,1],shape=(Mo, Mo), format="lil") 
+        D_inner[0,0] = D_inner[-1,-1] = d 
+        D_inner[0,1] = D_inner[-1,-2] = -2 
 
-        U = np.zeros((M+1, M+1, N))
-        U[1:-1,1:-1,0] = np.ones((Mi,Mi)) * -1
-        U[0,0:Mi]    += self.g(xi,0.)       # lower boundary
-        U[Mi-1,0:Mi] += self.g(xi,1.)       # upper boundary
-        U[0:Mi,0]    += self.g(0.,yi)       # left  boundary
-        U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary 
+        A = laplacian(Mo, D_inner)  
+        
+        # --- Implementing the special cases ---
+        A[0:Mo,0:Mo] = D
+        A[0:Mo,Mo:2*Mo] = 2*A[0:Mo,Mo:2*Mo] 
 
+        A[-Mo:, -Mo:] = D  
+        A[-Mo:,-2*Mo:-Mo ] = A[0:Mo,Mo:2*Mo] 
 
+        # --- Solve the linear system (sparse solver) ---
+        U = np.zeros((Mo, Mo, N))
+        U[:,:,0] = np.ones((Mo,Mo)) * -1
+        alpha = np.zeros((Mo, Mo, N)) * 0.1 
+        alpha[:,:,0] = np.ones((Mo, Mo)) * 0.1
+
+            #Time stepping 
         for n in range(N-1):
             # Step 1: Pure heat equation (no source term), implicit in space
-            b = h**2/k * U[1:-1,1:-1,n].flatten()
-            U_star = spsolve(A, b).reshape(Mi, Mi)
+            b = dx**2/dt * U[:,:,n].flatten()
+            U_star =  U[:,:,n+1]= spsolve(A,b).reshape(Mo,Mo) 
 
             # Step 2: Reaction step using updated temperature U_star
-            sourceterm = self.sourceTerm(U_star, alpha[1:-1,1:-1,n])
-            alpha[1:-1,1:-1,n+1] = np.clip(alpha[1:-1,1:-1,n] + k*sourceterm, 0, 1)
+            sourceterm = self.sourceTerm(U_star, alpha[:,:,n])
+            alpha[:,:,n+1] = alpha[:,:,n] + dt*sourceterm
 
             # Correct U for heat released by reaction
-            U[1:-1,1:-1,n+1] = U_star + k*c*sourceterm
+            U[:,:,n+1] = U_star + dt*c*sourceterm
             
         return x, y, t, U, alpha

@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.sparse as sparse             # Sparse matrices
 from scipy.sparse.linalg import spsolve
-from MODEL_PARAMS import L   # Linear solver for sparse matrices
+from MODEL_PARAMS import L,h,k   # Linear solver for sparse matrices
 
 def laplacian(Mo, D):
     '''
@@ -31,19 +31,20 @@ class Heat(object):
         x = np.linspace(0, 1, M+1)
         y = np.linspace(0, 1, M+1) 
         t = np.linspace(0, 2, N+1)
-        h = 1/M
-        k = 1/N
+        dx = 1/M
+        dt = 1/N
         Mo = M+1 # Number of total points in each direction
 
         # --- Constructing the linear system A  ---
-        d_star = h**2/k + 4*(1+k)
-        d = h**2/k + 4+2*k  
+        Gamma = k/(h*L)
+        d_star = dx**2/dt + 4*(1+Gamma*dx)
+        d = dx**2/dt + 4+2*Gamma*dx  
 
         D = sparse.diags([-1,d,-1],[-1,0,1],shape=(Mo, Mo), format="lil") 
         D[0,0] = D[-1,-1] = d_star 
         D[0,1] = D[-1,-2] = -2 
 
-        D_inner = sparse.diags([-1,4 +h**2/k,-1],[-1,0,1],shape=(Mo, Mo), format="lil") 
+        D_inner = sparse.diags([-1,4 +dx**2/dt,-1],[-1,0,1],shape=(Mo, Mo), format="lil") 
         D_inner[0,0] = D_inner[-1,-1] = d 
         D_inner[0,1] = D_inner[-1,-2] = -2 
 
@@ -62,6 +63,6 @@ class Heat(object):
 
         for n in range(N-1):
             # Backward in time, 5-point in space
-            U[:,:,n+1]= spsolve(A, h**2/k*U[:,:,n].flatten()).reshape(Mo,Mo) 
+            U[:,:,n+1]= spsolve(A, dx**2/dt*U[:,:,n].flatten()).reshape(Mo,Mo) 
 
         return x, y, t, U
