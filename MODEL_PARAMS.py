@@ -23,3 +23,4 @@ T0 = 300 # [K] Initial temperature
 Tm = 443 # [K] Mold temperature
 
 c = H_r/(c_p*(Tm-T0))
+tdiff = L**2 * rho * c_p / k 

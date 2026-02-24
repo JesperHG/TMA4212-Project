@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.sparse as sparse             # Sparse matrices
 from scipy.sparse.linalg import spsolve
-from MODEL_PARAMS import L,h,k   # Linear solver for sparse matrices
+from MODEL_PARAMS import L,h,k   
 
 def laplacian(Mo, D):
     '''
@@ -20,19 +20,20 @@ class Heat(object):
     Class for the Heat problem u dot - Delta u = f on Omega, with u=g at the boundaries.
     '''
 
-    def solve(self, M=50, N=100):
+    def solve(self, M=50, N=100, T_end=1):
         '''
         Solve Heat problem with the 5-point formula
         M: Number of grid intervals in each spacial direction
         N: Number of grid intervals in time
+        T_end: Final dimensionless time (in units of t_diff)
         '''
 
         # Make the grid
         x = np.linspace(0, 1, M+1)
         y = np.linspace(0, 1, M+1) 
-        t = np.linspace(0, 1, N+1)
+        t = np.linspace(0, T_end, N+1)
         dx = 1/M
-        dt = 1/N
+        dt = T_end/N
         Mo = M+1 # Number of total points in each direction
 
         # --- Constructing the linear system A  ---
@@ -58,11 +59,11 @@ class Heat(object):
         A[-Mo:, -2*Mo:-Mo] = A[0:Mo, Mo:2*Mo] 
 
         # --- Solve the linear system (sparse solver) ---
-        U = np.zeros((Mo, Mo, N))
+        U = np.zeros((Mo, Mo, N+1))
         U[:,:,0] = np.ones((Mo, Mo)) * -1
 
-        for n in range(N-1):
+        for i in range(N):
             # Backward in time, 5-point in space
-            U[:,:,n+1]= spsolve(A, dx**2/dt*U[:,:,n].flatten()).reshape(Mo, Mo) 
+            U[:,:,i+1]= spsolve(A, dx**2/dt*U[:,:,i].flatten()).reshape(Mo, Mo) 
 
         return x, y, t, U
