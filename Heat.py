@@ -30,15 +30,15 @@ class Heat(object):
         # Make the grid
         x = np.linspace(0, 1, M+1)
         y = np.linspace(0, 1, M+1) 
-        t = np.linspace(0, 2, N+1)
+        t = np.linspace(0, 1, N+1)
         dx = 1/M
         dt = 1/N
         Mo = M+1 # Number of total points in each direction
 
         # --- Constructing the linear system A  ---
-        Gamma = k/(h*L)
-        d_star = dx**2/dt + 4*(1+Gamma*dx)
-        d = dx**2/dt + 4+2*Gamma*dx  
+        gamma = h*L/k
+        d_star = dx**2/dt + 4*(1+gamma*dx)
+        d = dx**2/dt + 4+2*gamma*dx  
 
         D = sparse.diags([-1,d,-1],[-1,0,1],shape=(Mo, Mo), format="lil") 
         D[0,0] = D[-1,-1] = d_star 
@@ -51,18 +51,18 @@ class Heat(object):
         A = laplacian(Mo, D_inner)  
         
         # --- Implementing the special cases ---
-        A[0:Mo,0:Mo] = D
-        A[0:Mo,Mo:2*Mo] = 2*A[0:Mo,Mo:2*Mo] 
+        A[0:Mo, 0:Mo] = D
+        A[0:Mo, Mo:2*Mo] = 2*A[0:Mo, Mo:2*Mo] 
 
         A[-Mo:, -Mo:] = D  
-        A[-Mo:,-2*Mo:-Mo ] = A[0:Mo,Mo:2*Mo] 
+        A[-Mo:, -2*Mo:-Mo] = A[0:Mo, Mo:2*Mo] 
 
         # --- Solve the linear system (sparse solver) ---
         U = np.zeros((Mo, Mo, N))
-        U[:,:,0] = np.ones((Mo,Mo)) * -1
+        U[:,:,0] = np.ones((Mo, Mo)) * -1
 
         for n in range(N-1):
             # Backward in time, 5-point in space
-            U[:,:,n+1]= spsolve(A, dx**2/dt*U[:,:,n].flatten()).reshape(Mo,Mo) 
+            U[:,:,n+1]= spsolve(A, dx**2/dt*U[:,:,n].flatten()).reshape(Mo, Mo) 
 
         return x, y, t, U
