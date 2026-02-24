@@ -62,9 +62,22 @@ class Vulcanization(object):
         U[0,0:Mi]    += self.g(xi,0.)       # lower boundary
         U[Mi-1,0:Mi] += self.g(xi,1.)       # upper boundary
         U[0:Mi,0]    += self.g(0.,yi)       # left  boundary
-        U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary
+        U[0:Mi,Mi-1] += self.g(1.,yi)       # right boundary 
+
 
         for n in range(N-1):
+            # Backward in time, 5-point in space 
+            b = h**2/k*U[1:-1,1:-1,n].flatten() 
+            U[1:-1,1:-1,n+1] = spsolve(A, b).reshape(Mi,Mi)  
+
+            sourceterm = self.sourceTerm(U[1:-1,1:-1,n+1], alpha[1:-1,1:-1,n])   
+            U[1:-1,1:-1,n+1] = k*c*sourceterm
+            
+            alpha[1:-1,1:-1,n+1] = k/2*(alpha[1:-1,1:-1,n] + k*sourceterm + alpha[1:-1,1:-1,n])
+            
+            U[1:-1,1:-1,n+1] += k*c*sourceterm
+            
+        return x, y, t, U,alpha
             # Step 1: Pure heat equation (no source term), implicit in space
             b = h**2/k * U[1:-1,1:-1,n].flatten()
             U_star = spsolve(A, b).reshape(Mi, Mi)
