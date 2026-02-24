@@ -19,7 +19,7 @@ for j in N:
     
     solves.append(U)
     if len(solves) > 1:
-        err = solves[-1][::1,::1,::2] - solves[-2]
+        err = solves[-1][:,:,-1] - solves[-2][:,:,-1]
         errs.append(np.max(np.abs(err)))
 
 errs = np.array(errs)
