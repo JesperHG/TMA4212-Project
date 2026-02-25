@@ -39,5 +39,12 @@ python -m tasks.task2
 Cached solutions are stored in `output/solutions/`. Delete them (or pass
 `force=True` to `get_solution`) to re-solve.
 
-TODO:
-- More task scripts as new tasks arrive
+# Things to consider:
+* Plot snapshots of heat as well
+
+* Plot cure at edge of domain
+* Plot cure and temp in same plot
+
+* Why is curing seemingly uniform?
+* Why does curing have an S shape?
+    * When does alpha^n = (1-alpha)^m ?
