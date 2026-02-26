@@ -47,4 +47,16 @@ def alpha_dot(u, alpha):
     mask = u > limit
     da[mask] = (A * np.exp(-E / (R * ((Tm - T0) * u[mask] + Tm)))
                 * alpha[mask]**m * (1 - alpha[mask])**n)
-    return da * tdiff
+    return da * tdiff 
+
+
+def Linear_alpha_dot(u, alpha,Lambda):
+    """
+    Compute the rate of change of the degree of cure dα/dt (dimensionless).
+    """
+    limit = (Ts - Tm) / (Tm - T0)
+    da   = np.zeros_like(alpha)
+    mask = u > limit
+    da[mask] = Lambda*(u*(Tm-T0)+Tm-Ts) - gamma * alpha
+    return da * tdiff 
+
