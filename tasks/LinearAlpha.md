@@ -1,0 +1,4 @@
+
+
+With a linear curing law $$\frac{\partial\alpha}{\partial t} = \begin{cases} 0 \hspace{2.7cm} T \le T_s \\ \lambda (T - T_s) - \gamma \alpha \hspace{0.5cm} T > T_s\end{cases}$$ we can write our heat equation into a linear system. We introduce $\theta = T - T_s$, and we rewrite our equation
+$$\rho c_p \frac{\partial T}{\partial t} = k\Delta T + \rho H_r \frac{\partial \alpha}{\partial t} \\ \Rightarrow \frac{\partial \theta}{\partial t} = K\Delta\theta + C(\lambda\theta - \gamma \alpha),$$ with $K = \frac{k}{\rho c_p}$ and $C = \frac{H_r}{c_p}$. So for $T > T_s$ we get the linear system $$\frac{\partial}{\partial t}\begin{pmatrix} \theta \\ \alpha \end{pmatrix} = \begin{pmatrix} K\Delta + C\lambda & -C\gamma \\ \lambda & -\gamma \end{pmatrix}\begin{pmatrix} \theta \\ \alpha \end{pmatrix}.$$
