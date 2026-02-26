@@ -49,3 +49,5 @@ Cached solutions are stored in `output/solutions/`. Delete them (or pass
 * Why is curing seemingly uniform?
 * Why does curing have an S shape?
     * When does alpha^n = (1-alpha)^m ?
+
+laplacian!

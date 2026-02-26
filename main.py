@@ -32,13 +32,13 @@ def _save_anim(anim, name, fps=10):
 # ── Main ──────────────────────────────────────────────────────────────
 def main():
     # --- Pure heat equation ---
-    xh, yh, th, Uh = get_solution("Heat", M=51, N=1001, T_end=1)
+    xh, yh, th, Uh = get_solution("Heat", M=51, N=2001, T_end=1)
 
     fig, ax, anim = plot_temperature(xh, yh, th, Uh, max_frames=60, t_end_sec=1000)
     _save_anim(anim, "heat_T.gif", fps=8)
 
     # --- Vulcanization (heat + reaction) ---
-    x, y, t, U, alpha = get_solution("Vulcanization", M=51, N=1001, T_end=20)
+    x, y, t, U, alpha = get_solution("Vulcanization", M=51, N=2001, T_end=200)
 
     # Animated temperature field (only first ~1000 s)
     fig, ax, anim = plot_temperature(x, y, t, U, max_frames=100, t_end_sec=1000)
