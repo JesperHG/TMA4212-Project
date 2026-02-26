@@ -18,7 +18,7 @@ README.md
 main.py                Main script – solve and generate all plots
 src/                   Python package – all reusable code
     params.py            Physical / model parameters
-    discretization.py    Laplacian matrix & αdot
+    discretization.py    System matrix & αdot
     solvers.py           Heat and Vulcanization PDE solvers
     plotting.py          Plotting functions (animations, snapshots, analysis)
     utils.py             Save/load solutions, caching helpers
@@ -49,5 +49,3 @@ Cached solutions are stored in `output/solutions/`. Delete them (or pass
 * Why is curing seemingly uniform?
 * Why does curing have an S shape?
     * When does alpha^n = (1-alpha)^m ?
-
-laplacian!

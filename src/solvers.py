@@ -6,7 +6,7 @@ heat + vulcanization system.
 import numpy as np
 from scipy.sparse.linalg import spsolve
 
-from src.discretization import laplacian, alpha_dot
+from src.discretization import sys_matrix, alpha_dot
 from src.params import c
 
 
@@ -30,7 +30,7 @@ def solve_heat(M=51, N=101, T_end=1):
     dx = 1 / (M - 1)
     dt = T_end / (N - 1)
 
-    A = laplacian(M, dx, dt)
+    A = sys_matrix(M, dx, dt)
 
     U = np.zeros((M, M, N))
     U[:, :, 0] = -1.0
@@ -62,7 +62,7 @@ def solve_vulcanization(M=51, N=101, T_end=15):
     dx = 1 / (M - 1)
     dt = T_end / (N - 1)
 
-    A = laplacian(M, dx, dt)
+    A = sys_matrix(M, dx, dt)
 
     U     = np.zeros((M, M, N))
     alpha = np.zeros((M, M, N))

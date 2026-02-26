@@ -8,9 +8,9 @@ import scipy.sparse as sparse
 from src.params import gamma, Ts, Tm, T0, E, A, R, m, n, tdiff
 
 
-def laplacian(M, dx, dt):
+def sys_matrix(M, dx, dt):
     """
-    Construct the discrete Laplacian matrix for the 5-point stencil with
+    Construct the discrete system matrix for the 5-point stencil with
     Robin boundary conditions.
     """
     d_star = dx**2 / dt + 4 * (1 + gamma * dx)
