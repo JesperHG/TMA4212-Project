@@ -6,7 +6,7 @@ heat + vulcanization system.
 import numpy as np
 from scipy.sparse.linalg import spsolve
 import scipy.sparse as sparse
-from src.discretization import laplacian, alpha_dot, Linear_alpha_dot
+from src.discretization import sys_matrix, alpha_dot, Linear_alpha_dot
 from src.params import c,gamma,T0,Tm,Ts
 
 
