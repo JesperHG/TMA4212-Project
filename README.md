@@ -15,15 +15,16 @@ The important parts of the project, `discretization.py` and `solvers.py`, were w
 
 ```
 README.md
-answers/               Written answers (task1.md, task2.md, …)
+main.py                Main script – solve and generate all plots
 src/                   Python package – all reusable code
     params.py            Physical / model parameters
     discretization.py    Laplacian matrix & αdot
     solvers.py           Heat and Vulcanization PDE solvers
     plotting.py          Plotting functions (animations, snapshots, analysis)
     utils.py             Save/load solutions, caching helpers
-tasks/                 Runnable scripts, one per task
-    task2.py             Solve & generate all Task 2 plots
+tasks/                 Written answers and task-specific scripts
+    task1.md             Task 1 answers
+    task2.md             Task 2 answers
 output/                Generated files (git-ignored)
     solutions/           Cached .npz solution files
     plots/               Saved figures and GIFs
@@ -31,9 +32,9 @@ output/                Generated files (git-ignored)
 
 ## Usage
 
-Run a task from the project root:
+Run from the project root:
 ```bash
-python -m tasks.task2
+python main.py
 ```
 
 Cached solutions are stored in `output/solutions/`. Delete them (or pass

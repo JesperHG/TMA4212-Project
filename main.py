@@ -1,8 +1,8 @@
 """
-Task 2 – Vulcanisation simulation: solve, generate and save all plots.
+Main script – solve and generate all plots for the project.
 
 Run from the project root:
-    python -m tasks.task2
+    python main.py
 """
 
 import os
@@ -34,7 +34,7 @@ def main():
     # --- Pure heat equation ---
     xh, yh, th, Uh = get_solution("Heat", M=51, N=1001, T_end=1)
 
-    fig, ax, anim = plot_temperature(xh, yh, th, Uh, max_frames=60)
+    fig, ax, anim = plot_temperature(xh, yh, th, Uh, max_frames=60, t_end_sec=1000)
     _save_anim(anim, "heat_T.gif", fps=8)
 
     # --- Vulcanization (heat + reaction) ---
@@ -59,7 +59,7 @@ def main():
     # Curing snapshots: spread over full simulation
     fig, axes = plot_alpha_snapshots(
         x, y, t, alpha,
-        snap_times_sec=[0, 500, 5000, 20000, 50000, 80000])
+        snap_times_sec=[0, 1000, 20000, 40000, 60000, 80000])
     _save(fig, "snapshots_alpha.png")
 
     # Cure at centre & edge vs time (with 90 % marker + equilibrium)
