@@ -7,4 +7,4 @@ $u_N = u + hu_y+\frac{h^2}{2}u_{yy} + \frac{h^3}{6}u_{3y} + \mathcal{O}(h^4) \\
 u_S = u - hu_y+\frac{h^2}{2}u_{yy} - \frac{h^3}{6}u_{3y} + \mathcal{O}(h^4) \\ 
 u_W = u - hu_x+\frac{h^2}{2}u_{xx} - \frac{h^3}{6}u_{3x} + \mathcal{O}(h^4).$ We see that $u_N + u_S = 2u + h^2u_{yy} + \mathcal{O}(h^4)$. Inserting all this into our approximation for the laplacian on the boundary gives us $$\Delta_h u = \frac{1}{h^2}(u_N + u_S + u_E + u_W - 4u) \\ = \Delta_h u = \frac{1}{h^2}(u_N + u_S  + 2u_W +2hu_x- 4u)\\ = \frac{1}{h^2}(h^2u_{yy} + 2(u-hu_x+\frac{h^2}{2}u_{xx}-\frac{h^3}{6}u_{3x}) + 2hu_x - 2u + \mathcal{O}(h^4)) \\ = \Delta u - \frac{h}{3}u_{3x} + \mathcal{O}(h^2).$$
 
-So on the boundaries the local truncation error is of degree $1$, while we have degree $2$ on the interior points. So our numerical error should behave of order $1$ because the boundary conditions and the use of Backward Euler steps in time. 
+So on the boundaries the local truncation error is of degree $1$, while we have degree $2$ on the interior points. 
