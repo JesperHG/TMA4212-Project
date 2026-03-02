@@ -7,11 +7,13 @@ Run from the project root:
 
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 from src.plotting import (plot_temperature, plot_alpha,
                           plot_T_snapshots, plot_alpha_snapshots,
-                          plot_cure_center, plot_max_temp)
+                          plot_cure_center, plot_max_temp,eoc_plot)
 from src.utils import get_solution, plots_dir
+from src.ErrorConvergence import error_test
 
 
 # ── Helpers ────────────────────────────────────────────────────────────
@@ -69,6 +71,13 @@ def main():
     # Max temperature vs time (with cure on twin axis)
     fig, ax = plot_max_temp(t, U, alpha=alpha)
     _save(fig, "vulc_max_temp.png")
+
+    M_steps = np.array([10,20,40,80,160,320])
+    N_steps = np.array([100,200,400,800,1600,3200])
+
+    errs, h, degree = error_test(M_steps,N_steps)
+    fig, ax = eoc_plot(h,errs,degree)
+    _save(fig, "err_conv_space_time.png")
 
     print(f"\nAll plots saved to {plots_dir()}/")
 

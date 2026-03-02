@@ -316,3 +316,21 @@ def plot_max_temp(t, U, alpha=None):
         ax.legend(fontsize=8)
 
     return fig, ax
+
+
+
+
+def eoc_plot(h,errs,degree):
+    fig, ax = plt.subplots()
+    ax.plot(h,errs,label=f"Approximate degree = {degree}")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Step size",size=15)
+    ax.set_ylabel(r"$|E|_{\infty}$",size=15)
+    ax.grid()
+    ax.legend()
+    ax.set_title("Error Convergence by refining of grid")
+
+    return fig,ax
+    
+
