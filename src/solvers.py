@@ -7,7 +7,8 @@ import numpy as np
 from scipy.sparse.linalg import spsolve
 import scipy.sparse as sparse
 from src.discretization import sys_matrix, sys_matrix_3D, alpha_dot, Linear_alpha_dot
-from src.params import c,gamma,T0,Tm,Ts
+from src.params import c, gamma, T0, Tm, Ts
+import src.params as params
 
 
 def solve_heat(M=51, N=101, T_end=1):
@@ -129,6 +130,92 @@ def solve_vulcanization_3D(M=51, N=101, T_end=20):
         U[:, :, :, i + 1] = spsolve(A, b).reshape(M, M, M)
 
     return x, y, z, t, U, alpha
+
+
+def solve_vulcanization_parametric(M=51, N=101, T_end=20,
+                                   gamma_val=None, c_val=None, E_val=None):
+    """
+    Solve the coupled heat + vulcanization system with custom gamma, c or E.
+
+    This re-derives sys_matrix and alpha_dot internally so that
+    the module-level constants in params / discretization are not mutated.
+
+    Parameters
+    ----------
+    M         : grid points per spatial direction
+    N         : time steps
+    T_end     : final dimensionless time
+    gamma_val : dimensionless Biot number hL/k  (default: params.gamma)
+    c_val     : dimensionless reaction heat Hr/(cp*(Tm-T0))  (default: params.c)
+    E_val     : activation energy [J/mol]  (default: params.E)
+
+    Returns
+    -------
+    x, y, t, U, alpha
+    """
+    import scipy.sparse as _sp
+
+    # Fall back to default parameter values
+    gamma_loc = gamma_val if gamma_val is not None else params.gamma
+    c_loc     = c_val     if c_val     is not None else params.c
+    E_loc     = E_val     if E_val     is not None else params.E
+    tdiff_loc = params.L**2 * params.rho * params.cp / params.k
+
+    x  = np.linspace(0, 1, M)
+    y  = np.linspace(0, 1, M)
+    t  = np.linspace(0, T_end, N)
+    dx = 1 / (M - 1)
+    dt = T_end / (N - 1)
+
+    # ---- build sys_matrix with gamma_loc ----
+    d_star = dx**2 / dt + 4 * (1 + gamma_loc * dx)
+    d      = dx**2 / dt + 4 * (1 + 0.5 * gamma_loc * dx)
+
+    D = _sp.diags([-1, d, -1], [-1, 0, 1], shape=(M, M), format="lil")
+    D[0, 0]  = D[-1, -1] = d_star
+    D[0, 1]  = D[-1, -2] = -2
+
+    D_inner = _sp.diags([-1, 4 + dx**2 / dt, -1], [-1, 0, 1],
+                        shape=(M, M), format="lil")
+    D_inner[0, 0]  = D_inner[-1, -1] = d
+    D_inner[0, 1]  = D_inner[-1, -2] = -2
+
+    Amat = _sp.kron(_sp.eye(M), D_inner)
+    C    = _sp.diags([-1, -1], [-M, M], shape=(M**2, M**2), format="lil")
+    Amat = (Amat + C).tocsr()
+    Amat[0:M, 0:M]     = D
+    Amat[0:M, M:2*M]   = 2 * Amat[0:M, M:2*M]
+    Amat[-M:, -M:]      = D
+    Amat[-M:, -2*M:-M]  = Amat[0:M, M:2*M]
+
+    # ---- local alpha_dot with E_loc ----
+    limit = (params.Ts - params.Tm) / (params.Tm - params.T0)
+
+    def _alpha_dot(u, alpha_arr):
+        da = np.zeros_like(alpha_arr)
+        mask = u > limit
+        da[mask] = (params.A
+                    * np.exp(-E_loc / (params.R * ((params.Tm - params.T0) * u[mask] + params.Tm)))
+                    * alpha_arr[mask]**params.m * (1 - alpha_arr[mask])**params.n)
+        return da * tdiff_loc
+
+    # ---- time-stepping (identical to solve_vulcanization) ----
+    U     = np.zeros((M, M, N))
+    alpha = np.zeros((M, M, N))
+    U[:, :, 0]    = -1.0
+    alpha[:, :, 0] = 0.1
+
+    for i in range(N - 1):
+        b      = (dx**2 / dt) * U[:, :, i].flatten()
+        U_star = spsolve(Amat, b).reshape(M, M)
+
+        adot = _alpha_dot(U_star, alpha[:, :, i])
+        alpha[:, :, i + 1] = np.clip(alpha[:, :, i] + dt * adot, 0.0, 1.0)
+
+        b += c_loc * dx**2 * adot.flatten()
+        U[:, :, i + 1] = spsolve(Amat, b).reshape(M, M)
+
+    return x, y, t, U, alpha
 
 
 def solve_LinearVulcanization(M=51, N=101, T_end=15, Lambda = 1):

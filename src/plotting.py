@@ -619,9 +619,9 @@ def plot_isosurface_3D(x, y, z, t, U, alpha,
         alpha_levels = [alpha_eq - 0.15, alpha_eq, alpha_eq + 0.15]
     if snap_times_sec_per_level is None:
         snap_times_sec_per_level = [
-            [10000, 20000, 40000],   # below equilibrium – reached early
-            [20000, 40000, 60000],   # at equilibrium
-            [40000, 60000, 80000],   # above equilibrium – reached late
+            [11450, 11550, 11600],   # below equilibrium – reached early
+            [17750, 17800, 17850],   # at equilibrium
+            [24250, 24300, 24350],   # above equilibrium – reached late
         ]
 
     n_rows = len(alpha_levels)
@@ -668,116 +668,6 @@ def plot_isosurface_3D(x, y, z, t, U, alpha,
     fig.suptitle(f'3-D cure front  (α_eq ≈ {alpha_eq:.3f})', fontsize=14, y=1.01)
     fig.tight_layout()
     return fig
-
-
-# ── 3-D cross-section triptych (xy, xz, yz through centre) ──────────
-def plot_cross_sections_3D(x, y, z, t, U, alpha,
-                           snap_times_T_sec=None,
-                           snap_times_alpha_sec=None):
-    """
-    For selected times, show three orthogonal cross-sections of T and α
-    through the domain centre: (x-y), (x-z), and (y-z).
-
-    Parameters
-    ----------
-    snap_times_T_sec     : snapshot times [s] for the temperature figure
-    snap_times_alpha_sec : snapshot times [s] for the α figure (defaults
-                           to *snap_times_T_sec* when not given)
-
-    Returns
-    -------
-    fig_T, fig_a
-    """
-    T     = U_to_T(U)
-    t_sec = t * tdiff
-    M     = U.shape[0]
-    mid   = M // 2
-
-    if snap_times_T_sec is None:
-        snap_times_T_sec = np.linspace(0, t_sec[-1], 5).tolist()
-    if snap_times_alpha_sec is None:
-        snap_times_alpha_sec = snap_times_T_sec
-
-    T_indices = [np.argmin(np.abs(t_sec - ts)) for ts in snap_times_T_sec]
-    a_indices = [np.argmin(np.abs(t_sec - ts)) for ts in snap_times_alpha_sec]
-
-    Tmin = T.min(); Tmax = T.max()
-
-    XY_X, XY_Y = np.meshgrid(x, y, indexing='ij')
-    XZ_X, XZ_Z = np.meshgrid(x, z, indexing='ij')
-    YZ_Y, YZ_Z = np.meshgrid(y, z, indexing='ij')
-
-    # ---- Temperature cross-sections ----
-    n_cols_T = len(T_indices)
-    fig_T, ax_T = plt.subplots(3, n_cols_T,
-                               figsize=(3.8 * n_cols_T, 10),
-                               constrained_layout=True, squeeze=False)
-    for j, idx in enumerate(T_indices):
-        # xy plane (z = mid)
-        ax = ax_T[0, j]
-        m1 = ax.pcolormesh(XY_X, XY_Y, T[:, :, mid, idx], shading='auto',
-                           cmap='coolwarm', vmin=Tmin, vmax=Tmax)
-        ax.set_xlabel('x'); ax.set_ylabel('y')
-        ax.set_title(f't = {t_sec[idx]:.0f} s', fontsize=9)
-        if j == 0:
-            ax.set_ylabel('x-y plane\ny')
-        fig_T.colorbar(m1, ax=ax, label='T [K]')
-
-        # xz plane (y = mid)
-        ax = ax_T[1, j]
-        m1 = ax.pcolormesh(XZ_X, XZ_Z, T[:, mid, :, idx], shading='auto',
-                           cmap='coolwarm', vmin=Tmin, vmax=Tmax)
-        ax.set_xlabel('x'); ax.set_ylabel('z')
-        if j == 0:
-            ax.set_ylabel('x-z plane\nz')
-        fig_T.colorbar(m1, ax=ax, label='T [K]')
-
-        # yz plane (x = mid)
-        ax = ax_T[2, j]
-        m1 = ax.pcolormesh(YZ_Y, YZ_Z, T[mid, :, :, idx], shading='auto',
-                           cmap='coolwarm', vmin=Tmin, vmax=Tmax)
-        ax.set_xlabel('y'); ax.set_ylabel('z')
-        if j == 0:
-            ax.set_ylabel('y-z plane\nz')
-        fig_T.colorbar(m1, ax=ax, label='T [K]')
-
-    fig_T.suptitle('3-D Temperature – orthogonal cross-sections', fontsize=14)
-
-    # ---- Alpha cross-sections ----
-    n_cols_a = len(a_indices)
-    fig_a, ax_a = plt.subplots(3, n_cols_a,
-                               figsize=(3.8 * n_cols_a, 10),
-                               constrained_layout=True, squeeze=False)
-    for j, idx in enumerate(a_indices):
-        ax = ax_a[0, j]
-        m1 = ax.pcolormesh(XY_X, XY_Y, alpha[:, :, mid, idx], shading='auto',
-                           cmap='Oranges', vmin=0, vmax=1)
-        ax.set_xlabel('x'); ax.set_ylabel('y')
-        ax.set_title(f't = {t_sec[idx]:.0f} s', fontsize=9)
-        if j == 0:
-            ax.set_ylabel('x-y plane\ny')
-        fig_a.colorbar(m1, ax=ax, label='α')
-
-        ax = ax_a[1, j]
-        m1 = ax.pcolormesh(XZ_X, XZ_Z, alpha[:, mid, :, idx], shading='auto',
-                           cmap='Oranges', vmin=0, vmax=1)
-        ax.set_xlabel('x'); ax.set_ylabel('z')
-        if j == 0:
-            ax.set_ylabel('x-z plane\nz')
-        fig_a.colorbar(m1, ax=ax, label='α')
-
-        ax = ax_a[2, j]
-        m1 = ax.pcolormesh(YZ_Y, YZ_Z, alpha[mid, :, :, idx], shading='auto',
-                           cmap='Oranges', vmin=0, vmax=1)
-        ax.set_xlabel('y'); ax.set_ylabel('z')
-        if j == 0:
-            ax.set_ylabel('y-z plane\nz')
-        fig_a.colorbar(m1, ax=ax, label='α')
-
-    fig_a.suptitle('3-D Curing (α) – orthogonal cross-sections', fontsize=14)
-
-    return fig_T, fig_a
-
 
 # ── Cure at centre & edge vs time (3-D) ──────────────────────────────
 def plot_cure_center_3D(t, alpha):
@@ -1036,4 +926,104 @@ def plot_error_convergence(h, errs, degree):
     ax.legend(fontsize=10)
     ax.set_title('Error convergence by grid refinement')
     return fig, ax
+
+
+# ── Parameter sensitivity (h and E) ──────────────────────────────────
+def plot_parameter_sensitivity(results_gamma, results_c, results_E,
+                               gamma_vals, c_vals, E_vals,
+                               gamma_default, c_default, E_default):
+    """
+    3×2 plot showing the effect of the dimensionless parameters γ, c and
+    the activation energy E on max temperature (zoomed around Tm) and
+    centre cure.
+
+    Parameters
+    ----------
+    results_gamma : list of (t, U, alpha) tuples, one per γ value
+    results_c     : list of (t, U, alpha) tuples, one per c value
+    results_E     : list of (t, U, alpha) tuples, one per E value
+    gamma_vals    : array of γ values tested
+    c_vals        : array of c values tested
+    E_vals        : array of E values tested
+    gamma_default : default γ (highlighted)
+    c_default     : default c (highlighted)
+    E_default     : default E (highlighted)
+
+    Returns
+    -------
+    fig
+    """
+    fig, axes = plt.subplots(3, 2, figsize=(14, 14), constrained_layout=True)
+
+    n_max = max(len(gamma_vals), len(c_vals), len(E_vals))
+    colours = plt.cm.viridis(np.linspace(0.15, 0.85, n_max))
+
+    # Helper: plot a max-T row zoomed around Tm
+    def _plot_maxT(ax, vals, results, default, label_fmt):
+        all_peaks = []
+        for i, (v, (t, U, alpha)) in enumerate(zip(vals, results)):
+            t_sec = t * tdiff
+            T     = U_to_T(U)
+            T_max = T.max(axis=(0, 1))
+            all_peaks.append(T_max.max())
+            lw = 2.5 if np.isclose(v, default) else 1.3
+            ls = '-' if np.isclose(v, default) else '--'
+            ax.plot(t_sec, T_max, color=colours[i], linewidth=lw,
+                    linestyle=ls, label=label_fmt(v))
+        ax.axhline(Tm, color='k', linestyle=':', linewidth=1,
+                   label=f'$T_m$ = {Tm} K')
+        # zoom around Tm
+        peak = max(all_peaks)
+        margin = max(5, 0.1 * abs(peak - Tm))
+        ax.set_ylim(Tm - margin, max(peak + margin, Tm + margin))
+        ax.set_xlabel('Time [s]')
+        ax.set_ylabel('Max $T$ [K]')
+        ax.legend(fontsize=8)
+        ax.grid(True, alpha=0.3)
+
+    # Helper: plot a centre-cure row
+    def _plot_cure(ax, vals, results, default, label_fmt):
+        for i, (v, (t, U, alpha)) in enumerate(zip(vals, results)):
+            t_sec = t * tdiff
+            M_    = alpha.shape[0]
+            mid   = M_ // 2
+            lw = 2.5 if np.isclose(v, default) else 1.3
+            ls = '-' if np.isclose(v, default) else '--'
+            ax.plot(t_sec, alpha[mid, mid, :], color=colours[i],
+                    linewidth=lw, linestyle=ls, label=label_fmt(v))
+        ax.axhline(0.9, color='r', linestyle=':', linewidth=1,
+                   label='90 % cure')
+        ax.set_xlabel('Time [s]')
+        ax.set_ylabel(r'$\alpha$ at centre')
+        ax.set_ylim(0, 1.05)
+        ax.legend(fontsize=8)
+        ax.grid(True, alpha=0.3)
+
+    # ── Row 0: γ ──
+    _plot_maxT(axes[0, 0], gamma_vals, results_gamma, gamma_default,
+               lambda v: f'γ = {v:.1f}')
+    axes[0, 0].set_title(r'Effect of $\gamma$ on max temperature')
+    _plot_cure(axes[0, 1], gamma_vals, results_gamma, gamma_default,
+               lambda v: f'γ = {v:.1f}')
+    axes[0, 1].set_title(r'Effect of $\gamma$ on centre cure')
+
+    # ── Row 1: c ──
+    _plot_maxT(axes[1, 0], c_vals, results_c, c_default,
+               lambda v: f'c = {v:.2f}')
+    axes[1, 0].set_title('Effect of $c$ on max temperature')
+    _plot_cure(axes[1, 1], c_vals, results_c, c_default,
+               lambda v: f'c = {v:.2f}')
+    axes[1, 1].set_title('Effect of $c$ on centre cure')
+
+    # ── Row 2: E ──
+    _plot_maxT(axes[2, 0], E_vals, results_E, E_default,
+               lambda v: f'E = {v/1e3:.0f} kJ/mol')
+    axes[2, 0].set_title('Effect of $E$ on max temperature')
+    _plot_cure(axes[2, 1], E_vals, results_E, E_default,
+               lambda v: f'E = {v/1e3:.0f} kJ/mol')
+    axes[2, 1].set_title('Effect of $E$ on centre cure')
+
+    fig.suptitle(r'Parameter sensitivity: $\gamma$, $c$ and $E$',
+                 fontsize=14)
+    return fig
 

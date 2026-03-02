@@ -13,14 +13,16 @@ from src.plotting import (plot_temperature, plot_alpha,
                           plot_T_snapshots, plot_alpha_snapshots,
                           plot_cure_center, plot_max_temp,
                           plot_error_convergence,
+                          plot_parameter_sensitivity,
                           plot_temperature_3D_slices, plot_alpha_3D_slices,
                           plot_T_snapshots_3D, plot_alpha_snapshots_3D,
                           plot_centerline_z, plot_isosurface_3D,
-                          plot_cross_sections_3D,
                           plot_cure_center_3D, plot_max_temp_3D,
                           plot_T_above_Tm, plot_T_above_Tm_3D_slices)
 from src.utils import get_solution, plots_dir
+from src.solvers import solve_vulcanization_parametric
 from src.error_convergence import error_test
+import src.params as params
 
 
 # ── Helpers ────────────────────────────────────────────────────────────
@@ -117,14 +119,6 @@ def main():
         snap_times_sec=[0, 1000, 20000, 40000, 60000, 80000])
     _save(fig, "snapshots", "vulc3d_alpha_slices.png")
 
-    # Orthogonal cross-sections (separate T and α times)
-    fig_T, fig_a = plot_cross_sections_3D(
-        x3, y3, z3, t3, U3, alpha3,
-        snap_times_T_sec=[0, 200, 500, 1000],
-        snap_times_alpha_sec=[0, 20000, 40000, 80000])
-    _save(fig_T, "snapshots", "vulc3d_cross_T.png")
-    _save(fig_a, "snapshots", "vulc3d_cross_alpha.png")
-
     # 3-D isosurface scatter (3×3: alpha levels × time)
     fig = plot_isosurface_3D(x3, y3, z3, t3, U3, alpha3)
     _save(fig, "snapshots", "vulc3d_isosurface.png")
@@ -143,14 +137,48 @@ def main():
     fig, ax = plot_max_temp_3D(t3, U3, alpha=alpha3)
     _save(fig, "analysis", "vulc3d_max_T.png")
 
-    # === Error convergence analysis ========================================
-    print("\n=== Error convergence analysis ===")
-    M_steps = np.array([10, 20, 40, 80, 160, 320])
-    N_steps = np.array([100, 200, 400, 800, 1600, 3200])
+    # === Parameter sensitivity (gamma, c, E) ================================
+    print("\n=== Parameter sensitivity ===")
+    gamma_vals = [2, 4, 20, 100]
+    c_vals     = [0.5, 0.92, 3., 6.]
+    E_vals     = [7.8e4, 8.0e4, 8.3e4, 8.7e4]
 
-    errs, h, degree = error_test(M_steps, N_steps)
-    fig, ax = plot_error_convergence(h, errs, degree)
-    _save(fig, "analysis", "heat_error_convergence.png")
+    results_gamma = []
+    for gv in gamma_vals:
+        print(f"  Solving with γ = {gv} ...")
+        _, _, t_g, U_g, a_g = solve_vulcanization_parametric(
+            M=51, N=2001, T_end=20, gamma_val=gv)
+        results_gamma.append((t_g, U_g, a_g))
+
+    results_c = []
+    for cv in c_vals:
+        print(f"  Solving with c = {cv} ...")
+        _, _, t_c, U_c, a_c = solve_vulcanization_parametric(
+            M=51, N=2001, T_end=20, c_val=cv)
+        results_c.append((t_c, U_c, a_c))
+
+    results_E = []
+    for Ev in E_vals:
+        print(f"  Solving with E = {Ev/1e3:.0f} kJ/mol ...")
+        _, _, t_e, U_e, a_e = solve_vulcanization_parametric(
+            M=51, N=2001, T_end=20, E_val=Ev)
+        results_E.append((t_e, U_e, a_e))
+
+    fig = plot_parameter_sensitivity(
+        results_gamma, results_c, results_E,
+        gamma_vals, c_vals, E_vals,
+        gamma_default=params.gamma, c_default=params.c,
+        E_default=params.E)
+    _save(fig, "analysis", "vulc2d_parameter_sensitivity.png")
+
+    # === Error convergence analysis ========================================
+    # print("\n=== Error convergence analysis ===")
+    # M_steps = np.array([10, 20, 40, 80, 160, 320])
+    # N_steps = np.array([100, 200, 400, 800, 1600, 3200])
+
+    # errs, h, degree = error_test(M_steps, N_steps)
+    # fig, ax = plot_error_convergence(h, errs, degree)
+    # _save(fig, "analysis", "heat_error_convergence.png")
 
     print(f"\nAll plots saved to {plots_dir()}/")
 
