@@ -1,16 +1,6 @@
 # TMA4212-Project
 Compulsory project in TMA4212 Numerical solution of differential equations by difference methods
 
-## AI usage
-We used AI to:
-* Make the project file structure and write the README below.
-* Make plotting and utils
-* Find two errors in the code
-    * Forgot to multiply alpha_dot by tdiff to remain dimensionless
-    * Forgot to multiply c*adot by dx**2
-
-The important parts of the project, `discretization.py` and `solvers.py`, were written by us.
-
 ## Project structure
 
 ```
