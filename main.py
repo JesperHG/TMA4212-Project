@@ -11,7 +11,8 @@ import numpy as np
 
 from src.plotting import (plot_temperature, plot_alpha,
                           plot_T_snapshots, plot_alpha_snapshots,
-                          plot_cure_center, plot_max_temp,eoc_plot,
+                          plot_cure_center, plot_max_temp,
+                          plot_error_convergence,
                           plot_temperature_3D_slices, plot_alpha_3D_slices,
                           plot_T_snapshots_3D, plot_alpha_snapshots_3D,
                           plot_centerline_z, plot_isosurface_3D,
@@ -19,7 +20,7 @@ from src.plotting import (plot_temperature, plot_alpha,
                           plot_cure_center_3D, plot_max_temp_3D,
                           plot_T_above_Tm, plot_T_above_Tm_3D_slices)
 from src.utils import get_solution, plots_dir
-from src.ErrorConvergence import error_test
+from src.error_convergence import error_test
 
 
 # ── Helpers ────────────────────────────────────────────────────────────
@@ -142,12 +143,14 @@ def main():
     fig, ax = plot_max_temp_3D(t3, U3, alpha=alpha3)
     _save(fig, "analysis", "vulc3d_max_T.png")
 
-    M_steps = np.array([10,20,40,80,160,320])
-    N_steps = np.array([100,200,400,800,1600,3200])
+    # === Error convergence analysis ========================================
+    print("\n=== Error convergence analysis ===")
+    M_steps = np.array([10, 20, 40, 80, 160, 320])
+    N_steps = np.array([100, 200, 400, 800, 1600, 3200])
 
-    errs, h, degree = error_test(M_steps,N_steps)
-    fig, ax = eoc_plot(h,errs,degree)
-    _save(fig, "err_conv_space_time.png")
+    errs, h, degree = error_test(M_steps, N_steps)
+    fig, ax = plot_error_convergence(h, errs, degree)
+    _save(fig, "analysis", "heat_error_convergence.png")
 
     print(f"\nAll plots saved to {plots_dir()}/")
 

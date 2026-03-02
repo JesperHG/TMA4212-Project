@@ -1018,17 +1018,22 @@ def plot_T_above_Tm_3D_slices(x, y, z, t, U,
 
 
 
-def eoc_plot(h,errs,degree):
-    fig, ax = plt.subplots()
-    ax.plot(h,errs,label=f"Approximate degree = {degree}")
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel("Step size",size=15)
-    ax.set_ylabel(r"$|E|_{\infty}$",size=15)
-    ax.grid()
-    ax.legend()
-    ax.set_title("Error Convergence by refining of grid")
+def plot_error_convergence(h, errs, degree):
+    """
+    Log-log plot of max-norm error vs step size with fitted convergence order.
 
-    return fig,ax
-    
+    Returns
+    -------
+    fig, ax
+    """
+    fig, ax = plt.subplots()
+    ax.plot(h, errs, 'o-', label=f'Approximate order = {degree:.2f}')
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlabel('Step size', fontsize=13)
+    ax.set_ylabel(r'$\|E\|_{\infty}$', fontsize=13)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=10)
+    ax.set_title('Error convergence by grid refinement')
+    return fig, ax
 
