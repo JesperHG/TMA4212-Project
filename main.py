@@ -145,12 +145,20 @@ def main():
 
     # === Error convergence analysis ========================================
     print("\n=== Error convergence analysis ===")
-    M_steps = np.array([10, 20, 40, 80, 160, 320])
-    N_steps = np.array([100, 200, 400, 800, 1600, 3200])
+
+    # M_steps = np.array([10,20,40,80,160,320])
+    # N_steps = 10*M_steps
+
+    # errs, h, degree = error_test(M_steps, N_steps)
+    # fig, ax = plot_error_convergence(h, errs, degree)
+    # _save(fig, "analysis", "heat_error_convergence.png")
+
+    M_steps = np.array([5,10,20,40,80,160])
+    N_steps = 5*M_steps
 
     errs, h, degree = error_test(M_steps, N_steps)
-    fig, ax = plot_error_convergence(h, errs, degree)
-    _save(fig, "analysis", "heat_error_convergence.png")
+    fig, ax = plot_error_convergence(h, errs, degree,coarse=True)
+    _save(fig, "analysis", "heat_error_convergence_coarse.png")
 
     print(f"\nAll plots saved to {plots_dir()}/")
 

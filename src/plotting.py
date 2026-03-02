@@ -1018,7 +1018,7 @@ def plot_T_above_Tm_3D_slices(x, y, z, t, U,
 
 
 
-def plot_error_convergence(h, errs, degree):
+def plot_error_convergence(h, errs, degree,coarse=False):
     """
     Log-log plot of max-norm error vs step size with fitted convergence order.
 
@@ -1034,6 +1034,9 @@ def plot_error_convergence(h, errs, degree):
     ax.set_ylabel(r'$\|E\|_{\infty}$', fontsize=13)
     ax.grid(True, alpha=0.3)
     ax.legend(fontsize=10)
-    ax.set_title('Error convergence by grid refinement')
+    if coarse:
+        ax.set_title(r'Error convergence by grid refinement $N = 5M$')
+    else:
+        ax.set_title(r'Error convergence by grid refinement $N = 10M$')
     return fig, ax
 
