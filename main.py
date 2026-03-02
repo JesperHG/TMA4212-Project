@@ -142,12 +142,12 @@ def main():
     fig, ax = plot_max_temp_3D(t3, U3, alpha=alpha3)
     _save(fig, "analysis", "vulc3d_max_T.png")
 
-    M_steps = np.array([10,20,40,80,160,320])
-    N_steps = np.array([100,200,400,800,1600,3200])
+    M_steps = np.array([4,8,16,32,64,128])
+    N_steps = 5*M_steps
 
     errs, h, degree = error_test(M_steps,N_steps)
     fig, ax = eoc_plot(h,errs,degree)
-    _save(fig, "err_conv_space_time.png")
+    _save(fig, "err_conv_space_time_coarse.png")
 
     print(f"\nAll plots saved to {plots_dir()}/")
 
