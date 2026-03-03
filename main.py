@@ -172,13 +172,15 @@ def main():
     _save(fig, "analysis", "vulc2d_parameter_sensitivity.png")
 
     # === Error convergence analysis ========================================
-    # print("\n=== Error convergence analysis ===")
-    # M_steps = np.array([10, 20, 40, 80, 160, 320])
-    # N_steps = np.array([100, 200, 400, 800, 1600, 3200])
+    print("\n=== Error convergence analysis ===")
+    M_steps = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+    N_steps = np.array([100, 200, 300, 400, 500, 600, 700, 800, 900, 1000])
 
-    # errs, h, degree = error_test(M_steps, N_steps)
-    # fig, ax = plot_error_convergence(h, errs, degree)
-    # _save(fig, "analysis", "heat_error_convergence.png")
+    errs_pos, h_pos, degree_pos = error_test(M_steps, "pos")
+    errs_time, h_time, degree_time = error_test(N_steps, "time")
+    fig, axes = plot_error_convergence(h_pos, errs_pos, degree_pos,
+                                       h_time, errs_time, degree_time)
+    _save(fig, "analysis", "heat_error_convergence.png")
 
     print(f"\nAll plots saved to {plots_dir()}/")
 
