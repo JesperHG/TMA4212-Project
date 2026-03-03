@@ -620,8 +620,8 @@ def plot_isosurface_3D(x, y, z, t, U, alpha,
     if snap_times_sec_per_level is None:
         snap_times_sec_per_level = [
             [11450, 11550, 11600],   # below equilibrium – reached early
-            [17750, 17800, 17850],   # at equilibrium
-            [24250, 24300, 24350],   # above equilibrium – reached late
+            [17740, 17770, 17800],   # at equilibrium
+            [24220, 24300, 24350],   # above equilibrium – reached late
         ]
 
     n_rows = len(alpha_levels)
@@ -908,24 +908,40 @@ def plot_T_above_Tm_3D_slices(x, y, z, t, U,
 
 
 
-def plot_error_convergence(h, errs, degree):
+def plot_error_convergence(h_pos, errs_pos, degree_pos,
+                           h_time, errs_time, degree_time):
     """
     Log-log plot of max-norm error vs step size with fitted convergence order.
+    Two subplots: spatial refinement (left) and temporal refinement (right).
 
     Returns
     -------
-    fig, ax
+    fig, axes
     """
-    fig, ax = plt.subplots()
-    ax.plot(h, errs, 'o-', label=f'Approximate order = {degree:.2f}')
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlabel('Step size', fontsize=13)
-    ax.set_ylabel(r'$\|E\|_{\infty}$', fontsize=13)
-    ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=10)
-    ax.set_title('Error convergence by grid refinement')
-    return fig, ax
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), constrained_layout=True)
+
+    # Spatial convergence
+    axes[0].plot(h_pos, errs_pos, 'o-', label=f'Approx. order = {degree_pos:.2f}')
+    axes[0].set_xscale('log')
+    axes[0].set_yscale('log')
+    axes[0].set_xlabel('Spatial step size $h$', fontsize=13)
+    axes[0].set_ylabel(r'$\|E\|_{\infty}$', fontsize=13)
+    axes[0].grid(True, alpha=0.3)
+    axes[0].legend(fontsize=10)
+    axes[0].set_title('Spatial convergence')
+
+    # Temporal convergence
+    axes[1].plot(h_time, errs_time, 'o-', color='tab:orange',
+                 label=f'Approx. order = {degree_time:.2f}')
+    axes[1].set_xscale('log')
+    axes[1].set_yscale('log')
+    axes[1].set_xlabel('Temporal step size $k$', fontsize=13)
+    axes[1].set_ylabel(r'$\|E\|_{\infty}$', fontsize=13)
+    axes[1].grid(True, alpha=0.3)
+    axes[1].legend(fontsize=10)
+    axes[1].set_title('Temporal convergence')
+
+    return fig, axes
 
 
 # ── Parameter sensitivity (h and E) ──────────────────────────────────
