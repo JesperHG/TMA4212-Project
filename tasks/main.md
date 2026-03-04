@@ -280,6 +280,10 @@ $$
 \end{align*}
 $$  
 
+
+The local truncation error will behave similarily on all boundaries, the only differences being if we differentiate with respect to $x$ or $y$, and the sign in front of the first order term. On the corners we will see similar errors, f.ex the top right corner: $$\tau = -\frac{h}{2}(u_{3x} + u_{3y}) + \mathcal{O}(h^2).$$
+
+So on the boundaries the local truncation error is of degree $1$, while we have degree $2$ on the interior points.  
 So on the boundaries the local truncation error is of degree $1$, while we have degree $2$ on the interior points. So our numerical error should behave of order $1$ because the boundary conditions and the use of Backward Euler steps in time. 
 
 
@@ -296,8 +300,120 @@ $$
 AU_p^{n} &= U_p^{n-1} + h^2c \alpha_{t^*}\\
 \alpha^n &= \alpha^{n-1} + k \alpha_{t^*} 
 \end{align*}
+$$ 
+
+
+## Discretization in 3D
+We used practically the same procedure for the 3D case as for the 2D case of our vulcanization solver. We go from a 5-point stencil in 2D to a 7-point stencil in 3D. We get the following discretization of our problem:
+
+$$
+\begin{align*} 
+(6+\frac{h^2}{k})U_P^n - U_E^n - U_W^n - U_N^n - U_S^n - U_U^n - U_D^n &= \frac {h^2}{k}U_P^{n-1} + h^2c\alpha_{t^*} \quad \text{Interior}\\
+\frac{1}{2h}(u_Q - u_{Q^{-1}}) &= -\gamma u  \quad \text{Boundaries}
+\end{align*}
 $$
 
+Here we define $Q$ as the ghost point we need to replace, and $Q^{-1}$ as the inner point in the other direction. As an example on the boundary $x=0$, we have:
+
+$$
+\frac{1}{2h}(u_W - u_E) = -\gamma u,
+$$
+
+and on the boundary $x=L$, we have:
+
+$$
+\frac{1}{2h}(u_E - u_W) = -\gamma u.
+$$
+
+We use these equations to set up the matrix $A_h$ for the same problem as before:
+$$
+A_hU_p^n = b = \frac{h^2}{k}U_p^{n-1} + h^2c\alpha_{t^*}.
+$$
+
+### Level 1: $M \times M$ tridiagonal blocks
+
+**Inner** (Core is inner points, boundaries are side points):
+
+$$
+T_{\text{inner}} = \begin{pmatrix}
+6+\frac{h^2}{k}+2\gamma h & -2 \\
+-1 & 6+\frac{h^2}{k} & -1 \\
+& \ddots & \ddots & \ddots \\
+& & -1 & 6+\frac{h^2}{k} & -1 \\
+& & & -2 & 6+\frac{h^2}{k}+2\gamma h
+\end{pmatrix}
+$$
+
+**Side** (Core is side points, boundaries are edge points):
+
+$$
+T_{\text{side}} = \begin{pmatrix}
+6+\frac{h^2}{k}+4\gamma h & -2 \\
+-1 & 6+\frac{h^2}{k}+2\gamma h & -1 \\
+& \ddots & \ddots & \ddots \\
+& & -1 & 6+\frac{h^2}{k}+2\gamma h & -1 \\
+& & & -2 & 6+\frac{h^2}{k}+4\gamma h
+\end{pmatrix}
+$$
+
+**Edge** (Core is edge points, boundaries are corner points):
+
+$$
+T_{\text{edge}} = \begin{pmatrix}
+6+\frac{h^2}{k}+6\gamma h & -2 \\
+-1 & 6+\frac{h^2}{k}+4\gamma h & -1 \\
+& \ddots & \ddots & \ddots \\
+& & -1 & 6+\frac{h^2}{k}+4\gamma h & -1 \\
+& & & -2 & 6+\frac{h^2}{k}+6\gamma h
+\end{pmatrix}
+$$
+
+$+0\gamma h$ are inner points, $+2\gamma h$ are side points,  $+4\gamma h$ are edge points, $+6\gamma h$ are corner points.
+
+### Level 2: $M^2 \times M^2$ block-tridiagonal matrices
+
+**B1** (Core is inner matrices, boundaries are side matrices):
+
+$$
+B_{1} = \begin{pmatrix}
+T_{\text{side}} & -2I \\
+-I & T_{\text{inner}} & -I \\
+& \ddots & \ddots & \ddots \\
+& & -I & T_{\text{inner}} & -I \\
+& & & -2I & T_{\text{side}}
+\end{pmatrix}
+$$
+
+**B2** (Core is side matrices, boundaries are edge matrices):
+
+$$
+B_{2} = \begin{pmatrix}
+T_{\text{edge}} & -2I \\
+-I & T_{\text{side}} & -I \\
+& \ddots & \ddots & \ddots \\
+& & -I & T_{\text{side}} & -I \\
+& & & -2I & T_{\text{edge}}
+\end{pmatrix}
+$$
+
+Here $I$ is the $M \times M$ identity matrix.
+
+### Level 3: The full $M^3 \times M^3$ system matrix
+Core is B1 matrices, boundaries are B2 matrices
+$$
+A_h = \begin{pmatrix}
+B_{2} & -2I \\
+-I & B_{1} & -I \\
+& \ddots & \ddots & \ddots \\
+& & -I & B_{1} & -I \\
+& & & -2I & B_{2}
+\end{pmatrix}
+$$
+
+where $I$ now is the $M^2 \times M^2$ identity matrix.
+
+
+ 
 
 
 
