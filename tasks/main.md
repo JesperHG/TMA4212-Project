@@ -209,7 +209,7 @@ $$
 \begin{align*}
 U_p^{n} = U_p^{n-1} + \frac{k}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) \\ 
 \xi^n = \xi^{n-1} + \frac{k}{h^2}\xi^n(-4 + e^{i\beta_xh} +  e^{-i\beta_xh} + e^{i\beta_yh} +  e^{-i\beta_yh}) \xi= 1 + \frac{2k}{h^2}(-2\sin^2(\frac{\beta_xh}{2})-2\sin^2(\frac{\beta_yh}{2}))\\ 
-\quad \\ \xi = \frac{1}{1 + \frac{4k}{h^2}(2\sin^2(\frac{b_xh}{2})+2\sin^2(\frac{b_yh}{2}))} \\ \quad\\ |\xi| \le 1 \quad  \forall \beta_x,\beta_y. 
+\quad \\ \xi = \frac{1}{1 + \frac{4k}{h^2}(2\sin^2(\frac{\beta_xh}{2})+2\sin^2(\frac{\beta_yh}{2}))} \\ \quad\\ |\xi| \le 1 \quad  \forall \beta_x,\beta_y. 
 \end{align*} 
 $$
 
