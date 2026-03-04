@@ -297,8 +297,8 @@ $$
 Then we use the temperature obtained by the first step to update the sourceterm and use it to solve the inhomogeneous heat equation and updating alpha with a forward difference: 
 $$
 \begin{align*}
-AU_p^{n} &= U_p^{n-1} + h^2c \alpha_{t^*}\\
-\alpha^n &= \alpha^{n-1} + k \alpha_{t^*} 
+AU_p^{n} &= U_p^{n-1} + h^2c \alpha^n_{t^*}\\
+\alpha^{n+1} &= \alpha^{n} + k \alpha^n_{t^*} 
 \end{align*}
 $$ 
 
