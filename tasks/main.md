@@ -284,7 +284,7 @@ $$
 The local truncation error will behave similarily on all boundaries, the only differences being if we differentiate with respect to $x$ or $y$, and the sign in front of the first order term. On the corners we will see similar errors, f.ex the top right corner: $$\tau = -\frac{h}{2}(u_{3x} + u_{3y}) + \mathcal{O}(h^2).$$
 
 So on the boundaries the local truncation error is of degree $1$, while we have degree $2$ on the interior points.  
-So on the boundaries the local truncation error is of degree $1$, while we have degree $2$ on the interior points. So our numerical error should behave of order $1$ because the boundary conditions and the use of Backward Euler steps in time. 
+
 
 
 Lastly we have to adress how we handle the source term in the heat equation. We use the following splitting scheme: 
