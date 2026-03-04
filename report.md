@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 ## Mathematical model 
 
 We have the following model:
@@ -33,7 +28,7 @@ $$
 \frac{\partial u}{\partial T} &= \frac{1}{T_m - T_0}, \\
 \frac{\partial t^*}{\partial t} &= \frac{1}{t_\text{diff}}, \\
 \frac{\partial x^*}{\partial x} = \frac{\partial y^*}{\partial y} &= \frac{1}{L},
-\end{align*}v
+\end{align*}
 $$
 and get the following relationships: 
 $$
@@ -80,7 +75,7 @@ $$
 We use the following approximations for dicretizations with known error term: 
 $$
 \begin{align*}
-\frac{1}{k}\nabla_k U_p =  \frac{U_p^n - U_p^{n-1}}{k} = u_t -\frac{k}{2}u_{xx}(\xi_m)\\
+\frac{1}{k}\nabla_k U_P =  \frac{U_P^n - U_P^{n-1}}{k} = u_t -\frac{k}{2}u_{xx}(\xi_m)\\
 \frac{1}{h^2}(\delta_x^2 + \delta_y^2) = \Delta_* u +\frac{h^2}{12}(u_{4x}(\xi_m)+u_{4y}(\xi_m))
 \end{align*}
 $$
@@ -88,9 +83,9 @@ $$
 Inserting the discretizations in to our dimensionless interior equation yields the following: 
 $$
 \begin{align*} 
-\frac{U_p^{n} - U_p^{n-1}}{k} = \frac{1}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) +kc\alpha_{t^*} \\
-U_p^{n} = U_p^{n-1} + \frac{k}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) +kc \alpha_{t^*} \\ 
-(4+\frac{h^2}{k})U_p^n -U_W^n -U_N^n-U_S^n-U_E^n = \frac{h^2}{k}U_p^{n-1} + h^2c\alpha_{t^*}\\ 
+\frac{U_P^{n} - U_P^{n-1}}{k} = \frac{1}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) +kc\alpha_{t^*} \\
+U_P^{n} = U_P^{n-1} + \frac{k}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) +kc \alpha_{t^*} \\ 
+(4+\frac{h^2}{k})U_P^n -U_W^n -U_N^n-U_S^n-U_E^n = \frac{h^2}{k}U_P^{n-1} + h^2c\alpha_{t^*}\\ 
 \end{align*}  
 $$
 
@@ -101,7 +96,7 @@ $$
 \begin{align*}
 A_hU_p^n = b\\
 A = \text{tridiag}(-I_{M},B,-I_{M}),\quad B = \text{tridiag}(-1,4+\frac{h^2}{k},-1)\\
-b = \frac{h^2}{k}U_p^{n-1} + h^2c \alpha_{t^*}\\ 
+b = \frac{h^2}{k}U_P^{n-1} + h^2c \alpha_{t^*}\\ 
 \end{align*}  
 $$
 
@@ -129,27 +124,27 @@ $$
 Now solving for the different ghost points that occurs at the different boundaries gives us the following equations for the different boundaries:
 $$
 \begin{align*}
-(4 + \frac{h^2}{k}+2h\gamma)U_p^n -2U_E^n -U_S^n -U_N^n  &= \frac{h^2}{k}U_p^{n-1} \quad \text{Left boundary}\\  
-(4 + \frac{h^2}{k}+2h\gamma)U_p^n -2U_W^n -U_S^n -U_N^n  &= \frac{h^2}{k}U_p^{n-1} \quad \text{Right boundary}\\ 
-(4 + \frac{h^2}{k}+2h\gamma)U_p^n -2U_N^n -U_E^n -U_W^n  &= \frac{h^2}{k}U_p^{n-1} \quad \text{Bottom boundary}\\
-(4 + \frac{h^2}{k}+2h\gamma)U_p^n -2U_S^n -U_E^n -U_W^n  &= \frac{h^2}{k}U_p^{n-1} \quad \text{Upper boundary}
+(4 + \frac{h^2}{k}+2h\gamma)U_P^n -2U_E^n -U_S^n -U_N^n  &= \frac{h^2}{k}U_P^{n-1} \quad \text{Left boundary}\\  
+(4 + \frac{h^2}{k}+2h\gamma)U_P^n -2U_W^n -U_S^n -U_N^n  &= \frac{h^2}{k}U_P^{n-1} \quad \text{Right boundary}\\ 
+(4 + \frac{h^2}{k}+2h\gamma)U_P^n -2U_N^n -U_E^n -U_W^n  &= \frac{h^2}{k}U_P^{n-1} \quad \text{Bottom boundary}\\
+(4 + \frac{h^2}{k}+2h\gamma)U_P^n -2U_S^n -U_E^n -U_W^n  &= \frac{h^2}{k}U_P^{n-1} \quad \text{Upper boundary}
 \end{align*} 
 $$
 
 The only thing remaining is to take into account is the corner cases. For the corner cases we have to use both the horizontal and vertical boundary equations to remedy the two occuring ghost points. This yields the following  set of equations:
 $$
 \begin{align*}
-(4 + \frac{h^2}{k}+4h\gamma)U_p^n -2U_E^n -2U_S^n   &= \frac{h^2}{k}U_p^{n-1} \quad \text{Upper left boundary}\\  
-(4 + \frac{h^2}{k}+4h\gamma)U_p^n -2U_W^n -2U_S^n   &= \frac{h^2}{k}U_p^{n-1} \quad \text{Upper right boundary}\\ 
-(4 + \frac{h^2}{k}+4h\gamma)U_p^n -2U_N^n -2U_E^n  &= \frac{h^2}{k}U_p^{n-1} \quad \text{Lower left boundary}\\
-(4 + \frac{h^2}{k}+4h\gamma)U_p^n -2U_N^n -2U_W^n  &= \frac{h^2}{k}U_p^{n-1} \quad \text{Lower right boundary}
+(4 + \frac{h^2}{k}+4h\gamma)U_P^n -2U_E^n -2U_S^n   &= \frac{h^2}{k}U_P^{n-1} \quad \text{Upper left boundary}\\  
+(4 + \frac{h^2}{k}+4h\gamma)U_P^n -2U_W^n -2U_S^n   &= \frac{h^2}{k}U_P^{n-1} \quad \text{Upper right boundary}\\ 
+(4 + \frac{h^2}{k}+4h\gamma)U_P^n -2U_N^n -2U_E^n  &= \frac{h^2}{k}U_P^{n-1} \quad \text{Lower left boundary}\\
+(4 + \frac{h^2}{k}+4h\gamma)U_P^n -2U_N^n -2U_W^n  &= \frac{h^2}{k}U_P^{n-1} \quad \text{Lower right boundary}
 \end{align*} 
 $$
 
 Now to derive the linear system:  
 
 $$
-A_hU_p^n = b = \frac{h^2}{k}U_p^{n-1} + h^2c\alpha_{t^*} \\  
+A_hU_p^n = b = \frac{h^2}{k}U_P^{n-1} + h^2c\alpha_{t^*} \\  
 $$
 
 
@@ -198,7 +193,7 @@ D & -2I & 0 & \cdots & 0 \\
 0 & 0 & \cdots & -2I & D
 \end{bmatrix}
 \\ 
-AU_p^{n} &= U_p^{n-1} + h^2c \alpha_{t^*}
+AU_p^{n} &= U_P^{n-1} + h^2c \alpha_{t^*}
 \end{align*}
 $$
 
@@ -207,16 +202,17 @@ $$
 First we peform stability analysis on the interior equations:  
 $$
 \begin{align*}
-U_p^{n} = U_p^{n-1} + \frac{k}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) \\ 
-\xi^n = \xi^{n-1} + \frac{k}{h^2}\xi^n(-4 + e^{i\beta_xh} +  e^{-i\beta_xh} + e^{i\beta_yh} +  e^{-i\beta_yh}) \xi= 1 + \frac{2k}{h^2}(-2\sin^2(\frac{\beta_xh}{2})-2\sin^2(\frac{\beta_yh}{2}))\\ 
-\quad \\ \xi = \frac{1}{1 + \frac{4k}{h^2}(2\sin^2(\frac{\beta_xh}{2})+2\sin^2(\frac{\beta_yh}{2}))} \\ \quad\\ |\xi| \le 1 \quad  \forall \beta_x,\beta_y. 
+U_P^{n} &= U_P^{n-1} + \frac{k}{h^2}(-4U_P^n+U_W^n+U_E^n+U_S^n+U_N^n) \\ 
+\xi^n &= \xi^{n-1} + \frac{k}{h^2}\xi^n(-4 + e^{i\beta_xh} +  e^{-i\beta_xh} + e^{i\beta_yh} +  e^{-i\beta_yh}) \\ 
+\xi &= 1 + \frac{2k}{h^2}(-2\sin^2(\frac{\beta_xh}{2})-2\sin^2(\frac{\beta_yh}{2}))\\ 
+&= \frac{1}{1 + \frac{4k}{h^2}(2\sin^2(\frac{\beta_xh}{2})+2\sin^2(\frac{\beta_yh}{2}))} \quad\quad |\xi| \le 1 \quad  \forall \beta_x,\beta_y. 
 \end{align*} 
 $$
 
 Next is the boundary equations, we start by considering the right boundary equation:
 $$
 \begin{align*}
-(4 + \frac{h^2}{k}+2h\gamma)U_p^n -2U_W^n -U_S^n -U_N^n = \frac{h^2}{k}U_p^{n-1}\\
+(4 + \frac{h^2}{k}+2h\gamma)U_P^n -2U_W^n -U_S^n -U_N^n = \frac{h^2}{k}U_P^{n-1}\\
 \quad\\
 (4 + \frac{h^2}{k} + 2h\gamma -2e^{-i\beta_xh} -e^{-i\beta_yh}-e^{i\beta_yh})\xi = \frac{h^2}{k}\\  
 \quad\\
@@ -291,17 +287,16 @@ Lastly we have to adress how we handle the source term in the heat equation. We 
 
 First step is solving the homogeneous heat equation by solving the linear equation: 
 $$
-A_hU_p^n =  \frac{h^2}{k}U_p^{n-1}  
+A_hU_p^{n+1} =  \frac{h^2}{k}U_P^{n}  
 $$  
 
 Then we use the temperature obtained by the first step to update the sourceterm and use it to solve the inhomogeneous heat equation and updating alpha with a forward difference: 
 $$
 \begin{align*}
-AU_p^{n} &= U_p^{n-1} + h^2c \alpha^n_{t^*}\\
-\alpha^{n+1} &= \alpha^{n} + k \alpha^n_{t^*} 
+AU_p^{n+1} &= U_P^{n} + h^2c \left[\frac{\partial\alpha}{\partial t^*}(\alpha^{n}, U_P^{n+1})\right] \\
+\alpha^{n+1} &= \alpha^{n} + k\left[\frac{\partial\alpha}{\partial t^*}(\alpha^{n}, U_P^{n+1})\right]
 \end{align*}
 $$ 
-
 
 ## Discretization in 3D
 We used practically the same procedure for the 3D case as for the 2D case of our vulcanization solver. We go from a 5-point stencil in 2D to a 7-point stencil in 3D. We get the following discretization of our problem:
@@ -327,7 +322,7 @@ $$
 
 We use these equations to set up the matrix $A_h$ for the same problem as before:
 $$
-A_hU_p^n = b = \frac{h^2}{k}U_p^{n-1} + h^2c\alpha_{t^*}.
+A_hU_p^n = b = \frac{h^2}{k}U_P^{n-1} + h^2c\alpha_{t^*}.
 $$
 
 ### Level 1: $M \times M$ tridiagonal blocks

@@ -217,8 +217,6 @@ def solve_vulcanization_parametric(M=51, N=101, T_end=20,
 
     return x, y, t, U, alpha
 
-
-def solve_LinearVulcanization(M=51, N=101, T_end=15, Lambda = 1):
     """
     Solve the coupled heat + vulcanization system using operator splitting.
 
